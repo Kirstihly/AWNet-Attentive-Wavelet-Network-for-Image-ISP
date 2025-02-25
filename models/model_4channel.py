@@ -2,8 +2,16 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 from models.utils import DWT, IWT
-from models.modules_4channel import shortcutblock, GCIWTResUp, GCWTResDown, GCRDB, ContextBlock2d, SE_net, PSPModule, \
-    last_upsample
+from models.modules_4channel import (
+    shortcutblock,
+    GCIWTResUp,
+    GCWTResDown,
+    GCRDB,
+    ContextBlock2d,
+    SE_net,
+    PSPModule,
+    last_upsample,
+)
 import functools
 
 
@@ -87,19 +95,20 @@ class AWNet(nn.Module):
         x5, x5_dwt = self.layer4(self.se4(x4))
         x5_latent = self.layer5(self.se5(x5))
 
-        x5_out = self.scale_5(x5_latent)
-        x5_out = F.sigmoid(x5_out)
+        # x5_out = self.scale_5(x5_latent)
+        # x5_out = F.sigmoid(x5_out)
         x4_up = self.layer4_up(x5_latent, x5_dwt) + self.sc_x4(x4)
-        x4_out = self.scale_4(x4_up)
-        x4_out = F.sigmoid(x4_out)
+        # x4_out = self.scale_4(x4_up)
+        # x4_out = F.sigmoid(x4_out)
         x3_up = self.layer3_up(x4_up, x4_dwt) + self.sc_x3(x3)
-        x3_out = self.scale_3(x3_up)
-        x3_out = F.sigmoid(x3_out)
+        # x3_out = self.scale_3(x3_up)
+        # x3_out = F.sigmoid(x3_out)
         x2_up = self.layer2_up(x3_up, x3_dwt) + self.sc_x2(x2)
-        x2_out = self.scale_2(x2_up)
-        x2_out = F.sigmoid(x2_out)
+        # x2_out = self.scale_2(x2_up)
+        # x2_out = F.sigmoid(x2_out)
         x1_up = self.layer1_up(x2_up, x2_dwt) + self.sc_x1(x1)
-        x1_out = self.scale_1(x1_up)
-        x1_out = F.sigmoid(x1_out)
+        # x1_out = self.scale_1(x1_up)
+        # x1_out = F.sigmoid(x1_out)
         out = self.last(x1_up)
-        return (out, x1_out, x2_out, x3_out, x4_out, x5_out), x5_latent
+        return out
+        # return (out, x1_out, x2_out, x3_out, x4_out, x5_out), x5_latent
