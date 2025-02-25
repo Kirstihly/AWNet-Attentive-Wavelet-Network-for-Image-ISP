@@ -9,11 +9,11 @@ class trainConfig:
     epoch = 50
     pretrain = True
 
-    data_dir = '/home/charliedai/aim2020/Dataset'
+    data_dir = "/Documents/wzry/full_dataset/"
 
-    checkpoints = './saved_checkpoints'
+    checkpoints = "./saved_checkpoints"
     if not os.path.exists(checkpoints):
         os.makedirs(checkpoints)
-    save_best = './best_weight'
+    save_best = "./best_weight"
     if not os.path.exists(save_best):
         os.makedirs(save_best)

@@ -29,8 +29,7 @@ def extract_bayer_channels(raw):
 def process_image(path, save, file):
     raw_image = np.asarray(imageio.imread(path))
     demosaic = extract_bayer_channels(raw_image)
-    save_path = './{}/{}'.format(save, file)
-    print(save_path)
+    save_path = "{}/{}".format(save, file)
     print(save_path)
     cv2.imwrite(save_path, demosaic * 255)
 
@@ -44,15 +43,20 @@ def batch_process(root, save):
         process_image(path, save, file)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
 
     parser = argparse.ArgumentParser()
     parser.add_argument(
-        '--data',
+        "--data",
         type=str,
-        default='/home/charliedai/aim2020/Dataset/train/huawei_raw/',
-        help='data directory of your raw images')
+        default="/home/charliedai/aim2020/Dataset/train/huawei_raw/",
+        help="data directory of your raw images",
+    )
     parser.add_argument(
-        '--save', type=str, default='./AIM2020_ISP_fullres_test_raw_pseudo_demosaicing', help='save image folder')
+        "--save",
+        type=str,
+        default="./AIM2020_ISP_fullres_test_raw_pseudo_demosaicing",
+        help="save image folder",
+    )
     args = parser.parse_args()
     batch_process(args.data, args.save)

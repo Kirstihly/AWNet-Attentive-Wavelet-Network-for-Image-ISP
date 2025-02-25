@@ -12,9 +12,16 @@ import imageio
 import PIL.Image as Image
 import time
 import os
-from utils import validation, fun_ensemble_back, save_validation_image, fun_ensemble, fun_ensemble_numpy
+from utils import (
+    validation,
+    fun_ensemble_back,
+    save_validation_image,
+    fun_ensemble,
+    fun_ensemble_numpy,
+)
 
 ENSEMBLE = False
+
 
 class wrapped_4_channel(nn.Module):
     def __init__(self):
@@ -24,12 +31,13 @@ class wrapped_4_channel(nn.Module):
     def forward(self, x):
         return self.module(x)
 
+
 class LoadData_real(Dataset):
 
     def __init__(self, dataset_dir, is_ensemble=False):
         self.is_ensemble = is_ensemble
 
-        self.raw_dir = os.path.join(dataset_dir, 'AIM2020_ISP_fullres_test_raw')
+        self.raw_dir = os.path.join(dataset_dir, "lq_sub_mosaic")
 
         self.dataset_size = 42
 
@@ -40,18 +48,23 @@ class LoadData_real(Dataset):
 
     def __getitem__(self, idx):
         idx = idx + 1
-        raw_image = np.asarray(imageio.imread(os.path.join(self.raw_dir, str(idx) + '.png')))
+        raw_image = np.asarray(
+            imageio.imread(os.path.join(self.raw_dir, str(idx) + ".png"))
+        )
         raw_image = extract_bayer_channels(raw_image)
 
         if self.is_ensemble:
 
             raw_image = fun_ensemble_numpy(raw_image)
-            raw_image = [torch.from_numpy(x.transpose((2, 0, 1)).copy()) for x in raw_image]
+            raw_image = [
+                torch.from_numpy(x.transpose((2, 0, 1)).copy()) for x in raw_image
+            ]
 
         else:
             raw_image = torch.from_numpy(raw_image.transpose((2, 0, 1)).copy())
 
         return raw_image, str(idx)
+
 
 def extract_bayer_channels(raw):
     # Reshape the input bayer image
@@ -66,19 +79,30 @@ def extract_bayer_channels(raw):
 
     return RAW_norm
 
+
 def test():
     net1 = wrapped_4_channel()
 
     net1.load_state_dict(
-        torch.load('{}/weight_4channel_best.pkl'.format(trainConfig.save_best), map_location="cpu")["model_state"])
-    print('weight loaded.')
+        torch.load(
+            "{}/best_4channel.pkl".format(trainConfig.save_best),
+            map_location="cpu",
+        )["model_state"]
+    )
+    print("weight loaded.")
 
     test_dataset = LoadData_real(trainConfig.data_dir, is_ensemble=ENSEMBLE)
-    test_loader = DataLoader(dataset=test_dataset, batch_size=1, shuffle=False, num_workers=0,
-                             pin_memory=False, drop_last=False)
+    test_loader = DataLoader(
+        dataset=test_dataset,
+        batch_size=1,
+        shuffle=False,
+        num_workers=0,
+        pin_memory=False,
+        drop_last=False,
+    )
 
     net1.eval()
-    save_folder = './result_fullres_4channel/'
+    save_folder = "./result_wzry_4channel/"
     if not os.path.exists(save_folder):
         os.makedirs(save_folder)
 
@@ -87,11 +111,11 @@ def test():
         with torch.no_grad():
             raw_image, image_name = val_data
             if isinstance(raw_image, list):
-                print('ensemble')
+                print("ensemble")
                 y1 = [net1(i)[0][0] for i in raw_image]
                 y1 = fun_ensemble_back(y1)
                 print(y1.shape)
-                
+
             else:
                 y1, _ = net1(raw_image)
                 y = y1[0]
@@ -101,5 +125,5 @@ def test():
             save_validation_image(y, image_name, save_folder)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     test()
