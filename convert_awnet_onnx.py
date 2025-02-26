@@ -12,13 +12,14 @@ class wrapped_4_channel(nn.Module):
         return self.module(x)
 
 
-sample_input = torch.rand((1, 4, 808, 1792), device="cpu")
+# Dimension is divisible by utils.dwt_init()
+sample_input = torch.rand((1, 4, 896, 1984), device="cuda")
 
 model = wrapped_4_channel()
 
-checkpoint = torch.load("best_weight/best_4channel.pkl", map_location="cpu")
+checkpoint = torch.load("best_weight/best_4channel.pkl", map_location="cuda")
 model.load_state_dict(checkpoint["model_state"], strict=True)
-model.eval()
+model.cuda().eval()
 print("OK")
 torch.onnx.export(
     model,  # PyTorch Model
